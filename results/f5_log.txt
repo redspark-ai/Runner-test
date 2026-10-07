@@ -1,0 +1,64 @@
+/opt/hostedtoolcache/Python/3.11.16/x64/lib/python3.11/site-packages/pydub/utils.py:170: RuntimeWarning: Couldn't find ffmpeg or avconv - defaulting to ffmpeg, but may not work
+  warn("Couldn't find ffmpeg or avconv - defaulting to ffmpeg, but may not work", RuntimeWarning)
+/opt/hostedtoolcache/Python/3.11.16/x64/lib/python3.11/site-packages/torch/jit/_script.py:1491: FutureWarning: `torch.jit.script` is deprecated. Please switch to `torch.compile` or `torch.export`.
+  warnings.warn(
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Download Vocos from huggingface charactr/vocos-mel-24khz
+Using F5TTS_v1_Base...
+
+vocab :  /opt/hostedtoolcache/Python/3.11.16/x64/lib/python3.11/site-packages/f5_tts/infer/examples/vocab.txt
+token :  custom
+model :  /home/runner/.cache/huggingface/hub/models--SWivid--F5-TTS/snapshots/84e5a410d9cead4de2f847e7c9369a6440bdfaca/F5TTS_v1_Base/model_1250000.safetensors 
+
+Voice: main
+ref_audio  /opt/hostedtoolcache/Python/3.11.16/x64/lib/python3.11/site-packages/f5_tts/infer/examples/basic/basic_ref_en.wav
+Converting audio...
+Using custom reference text...
+
+ref_text   Some call me nature, others call me mother nature. 
+ref_audio_ /tmp/tmp3mk6tcfq.wav 
+
+
+No voice tag found, using main.
+Voice: main
+Traceback (most recent call last):
+  File "/opt/hostedtoolcache/Python/3.11.16/x64/lib/python3.11/site-packages/torch/_ops.py", line 1587, in load_library
+    ctypes.CDLL(path)
+  File "/opt/hostedtoolcache/Python/3.11.16/x64/lib/python3.11/ctypes/__init__.py", line 376, in __init__
+    self._handle = _dlopen(self._name, mode)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^
+OSError: libnvrtc.so.13: cannot open shared object file: No such file or directory
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/opt/hostedtoolcache/Python/3.11.16/x64/bin/f5-tts_infer-cli", line 6, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "/opt/hostedtoolcache/Python/3.11.16/x64/lib/python3.11/site-packages/f5_tts/infer/infer_cli.py", line 344, in main
+    audio_segment, final_sample_rate, spectrogram = infer_process(
+                                                    ^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.11.16/x64/lib/python3.11/site-packages/f5_tts/infer/utils_infer.py", line 403, in infer_process
+    audio, sr = torchaudio.load(ref_audio)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.11.16/x64/lib/python3.11/site-packages/torchaudio/__init__.py", line 86, in load
+    return load_with_torchcodec(
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.11.16/x64/lib/python3.11/site-packages/torchaudio/_torchcodec.py", line 82, in load_with_torchcodec
+    from torchcodec.decoders import AudioDecoder
+  File "/opt/hostedtoolcache/Python/3.11.16/x64/lib/python3.11/site-packages/torchcodec/__init__.py", line 13, in <module>
+    from . import decoders, encoders, samplers, transforms  # noqa
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/hostedtoolcache/Python/3.11.16/x64/lib/python3.11/site-packages/torchcodec/decoders/__init__.py", line 7, in <module>
+    from .._core import AudioStreamMetadata, VideoStreamMetadata
+  File "/opt/hostedtoolcache/Python/3.11.16/x64/lib/python3.11/site-packages/torchcodec/_core/__init__.py", line 8, in <module>
+    from ._metadata import (
+  File "/opt/hostedtoolcache/Python/3.11.16/x64/lib/python3.11/site-packages/torchcodec/_core/_metadata.py", line 16, in <module>
+    from torchcodec._core.ops import (
+  File "/opt/hostedtoolcache/Python/3.11.16/x64/lib/python3.11/site-packages/torchcodec/_core/ops.py", line 35, in <module>
+    load_image_library()
+  File "/opt/hostedtoolcache/Python/3.11.16/x64/lib/python3.11/site-packages/torchcodec/_internally_replaced_utils.py", line 71, in load_image_library
+    torch.ops.load_library(image_library_path)
+  File "/opt/hostedtoolcache/Python/3.11.16/x64/lib/python3.11/site-packages/torch/_ops.py", line 1589, in load_library
+    raise OSError(f"Could not load this library: {path}") from e
+OSError: Could not load this library: /opt/hostedtoolcache/Python/3.11.16/x64/lib/python3.11/site-packages/torchcodec/libtorchcodec_image.so
