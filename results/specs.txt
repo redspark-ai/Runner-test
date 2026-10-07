@@ -1,0 +1,8 @@
+cores: 4
+               total        used        free      shared  buff/cache   available
+Mem:            15Gi       954Mi        12Gi        40Mi       2.4Gi        14Gi
+/dev/root       145G   59G   87G  41% /
+https://huggingface.co -> 200
+https://pypi.org -> 200
+https://api.github.com -> 200
+https://example.com -> 200
