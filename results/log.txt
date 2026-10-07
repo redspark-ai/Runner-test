@@ -18,3 +18,7 @@
 404 146 https://download.blender.org/peach/bigbuckbunny_movies/big_buck_bunny_480p_h264.mov
 200 61878609 https://archive.org/download/BigBuckBunny_124/Content/big_buck_bunny_720p_surround.mp4
 /home/runner/work/_temp/33c09c15-f03e-4b02-a764-1e7432c84020.sh: line 7: ffmpeg: command not found
+404 146 https://download.blender.org/peach/bigbuckbunny_movies/BigBuckBunny_320x180.mp4
+404 146 https://download.blender.org/peach/bigbuckbunny_movies/big_buck_bunny_480p_h264.mov
+200 61878609 https://archive.org/download/BigBuckBunny_124/Content/big_buck_bunny_720p_surround.mp4
+/home/runner/work/_temp/6bea4386-7b95-4c95-b18d-165f28d09412.sh: line 7: ffmpeg: command not found
