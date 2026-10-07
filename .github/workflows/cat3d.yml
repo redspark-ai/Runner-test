@@ -1,0 +1,54 @@
+name: cat3d
+on: workflow_dispatch
+permissions:
+  contents: write
+jobs:
+  go:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Run
+        continue-on-error: true
+        run: |
+          mkdir -p results/cat
+          pip install -q gradio_client
+          curl -sL -m 60 -o results/cat/cat.jpg https://cataas.com/cat
+          python - <<'PY' > results/cat/log.txt 2>&1
+          import shutil,json,traceback
+          from gradio_client import Client, handle_file
+          try:
+              c=Client("JeffreyXiang/TRELLIS")
+              info=c.view_api(return_format="dict")
+              eps=info["named_endpoints"]
+              print(list(eps))
+              try: c.predict(api_name="/start_session")
+              except Exception as e: print("start_session",e)
+              img=c.predict(image=handle_file("results/cat/cat.jpg"),api_name="/preprocess_image")
+              print("pre",img)
+              kw={}
+              for p in eps["/image_to_3d"]["parameters"]:
+                  n=p["parameter_name"]
+                  if n=="image": kw[n]=handle_file(img)
+                  elif p.get("parameter_has_default"): kw[n]=p["parameter_default"]
+              print(kw)
+              r=c.predict(api_name="/image_to_3d",**kw)
+              print("i23d",str(r)[:300])
+              kw2={p["parameter_name"]:p["parameter_default"] for p in eps["/extract_glb"]["parameters"] if p.get("parameter_has_default")}
+              g=c.predict(api_name="/extract_glb",**kw2)
+              print("glb",g)
+              path=[x for x in (g if isinstance(g,(list,tuple)) else [g]) if isinstance(x,str) and x.endswith(".glb")][0]
+              shutil.copy(path,"results/cat/cat.glb")
+          except Exception:
+              traceback.print_exc()
+          PY
+      - name: Save
+        if: always()
+        run: |
+          git config user.name runner; git config user.email runner@example.com
+          git add -A results
+          git commit -m cat3d || true
+          git push || (git pull --rebase && git push)
