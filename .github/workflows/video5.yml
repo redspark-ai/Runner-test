@@ -1,0 +1,28 @@
+name: video5
+on: [push, workflow_dispatch]
+permissions:
+  contents: write
+jobs:
+  make:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Render
+        run: |
+          set +e
+          mkdir -p results
+          exec > results/log5.txt 2>&1
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
+          which ffmpeg
+          curl -sL -m 300 -o bbb.src https://archive.org/download/BigBuckBunny_124/Content/big_buck_bunny_720p_surround.mp4
+          ls -la bbb.src
+          F=/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf
+          ffmpeg -y -ss 62 -t 5 -i bbb.src -ss 150 -t 5 -i bbb.src -ss 300 -t 5 -i bbb.src -ss 420 -t 5 -i bbb.src -filter_complex "[0:v]scale=854:480,setsar=1,fade=t=in:d=0.5[v0];[1:v]scale=854:480,setsar=1[v1];[2:v]scale=854:480,setsar=1[v2];[3:v]scale=854:480,setsar=1,fade=t=out:st=4.5:d=0.5[v3];[v0][v1][v2][v3]concat=n=4:v=1:a=0,drawtext=fontfile=$F:text='Big Buck Bunny (c) Blender Foundation - CC BY 3.0':fontcolor=white:fontsize=18:box=1:boxcolor=black@0.5:x=10:y=h-30[v];[0:a][1:a][2:a][3:a]concat=n=4:v=0:a=1,afade=t=out:st=19:d=1[a]" -map "[v]" -map "[a]" -c:v libx264 -preset veryfast -crf 23 -c:a aac -ac 2 -pix_fmt yuv420p results/bbb_cut.mp4
+          echo done
+      - name: Save
+        if: always()
+        run: |
+          git config user.name runner; git config user.email runner@example.com
+          git add results/
+          git commit -m "video5"; git push
