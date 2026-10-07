@@ -1,0 +1,22 @@
+name: yt1
+on: [push, workflow_dispatch]
+permissions:
+  contents: write
+jobs:
+  get:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download
+        continue-on-error: true
+        run: |
+          mkdir -p results
+          pip install -q -U yt-dlp
+          yt-dlp "https://www.youtube.com/results?search_query=nature+timelapse&sp=EgIwAQ%253D%253D" --playlist-items 1-20 --match-filter "duration<60" --max-downloads 1 -f "b[ext=mp4][height<=480]/b[ext=mp4]" --max-filesize 30M -o "results/yt_cc.%(ext)s" --print "%(title)s | %(license)s | %(webpage_url)s" > results/yt_info.txt 2> results/yt_log.txt
+          ls -la results >> results/yt_log.txt
+      - name: Save
+        run: |
+          git config user.name runner; git config user.email runner@example.com
+          git add -A results
+          git commit -m yt || true
+          git push
