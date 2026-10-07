@@ -16,7 +16,7 @@ Converting audio...
 Using custom reference text...
 
 ref_text   Some call me nature, others call me mother nature. 
-ref_audio_ /tmp/tmp3mk6tcfq.wav 
+ref_audio_ /tmp/tmp2x03l00v.wav 
 
 
 No voice tag found, using main.
