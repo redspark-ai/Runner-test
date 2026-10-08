@@ -1,5 +1,0 @@
-Traceback (most recent call last):
-  File "<stdin>", line 4, in <module>
-  File "/opt/hostedtoolcache/Python/3.11.16/x64/lib/python3.11/site-packages/gradio_client/client.py", line 162, in __init__
-    raise ValueError(
-ValueError: The current space is in the invalid state: CONFIG_ERROR. Please contact the owner to fix this.
