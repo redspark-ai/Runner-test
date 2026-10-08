@@ -1,0 +1,36 @@
+name: vrm-video
+on: [workflow_dispatch]
+permissions:
+  contents: write
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: 20}
+      - name: assets
+        run: |
+          mkdir -p results animation/public/anim
+          git clone -q --depth 1 https://github.com/pixiv/three-vrm /tmp/tv
+          cp "$(find /tmp/tv -name 'VRM1_Constraint_Twist_Sample.vrm' | head -1)" animation/public/model.vrm
+          git clone -q --depth 1 https://github.com/tk256ailab/vrm-viewer /tmp/vv
+          find /tmp/vv -iname '*.vrma' -exec cp {} animation/public/anim/ \;
+          ls animation/public/anim | head -30 > results/assets.log
+      - name: build
+        run: |
+          cd animation
+          npm i --silent three @pixiv/three-vrm @pixiv/three-vrm-animation esbuild playwright
+          npx playwright install --with-deps chromium > /dev/null
+          npx esbuild main.js --bundle --format=esm --outfile=public/bundle.js --log-level=error
+      - name: render
+        run: cd animation && node render.mjs 2>&1 | tail -30 > ../results/render.log
+      - name: encode
+        run: cd animation && ffmpeg -y -loglevel error -framerate 30 -i frames/f%04d.jpg -c:v libx264 -pix_fmt yuv420p -crf 20 ../results/vrm_demo.mp4
+      - name: save
+        if: always()
+        run: |
+          git config user.name bot; git config user.email bot@users.noreply.github.com
+          git add results; git commit -qm "vrm video results" || true
+          git pull -q --rebase; git push -q
