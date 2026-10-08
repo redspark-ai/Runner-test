@@ -27,7 +27,10 @@ jobs:
       - name: render
         run: cd animation && node render.mjs 2>&1 | tail -30 > ../results/render.log
       - name: encode
-        run: cd animation && ffmpeg -y -loglevel error -framerate 30 -i frames/f%04d.jpg -c:v libx264 -pix_fmt yuv420p -crf 20 ../results/vrm_demo.mp4
+        run: |
+          sudo apt-get install -y -qq ffmpeg > /dev/null
+          cd animation
+          ffmpeg -y -loglevel error -framerate 30 -i frames/f%04d.jpg -c:v libx264 -pix_fmt yuv420p -crf 20 ../results/vrm_demo.mp4 2>&1 | tail -5 > ../results/encode.log
       - name: save
         if: always()
         run: |
