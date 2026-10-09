@@ -1,0 +1,56 @@
+name: blender-video
+on: [workflow_dispatch]
+permissions:
+  contents: write
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - name: deps
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq xvfb ffmpeg unzip libxi6 libxrender1 libgl1 libxkbcommon0 libsm6 libxxf86vm1 libxfixes3 libegl1 libgl1-mesa-dri libglu1-mesa > /dev/null
+          pip install -q kokoro-onnx soundfile numpy
+      - name: assets
+        env: {GH: "${{ secrets.GITHUB_TOKEN }}"}
+        run: |
+          mkdir -p assets/anim results
+          git clone -q --depth 1 https://github.com/pixiv/three-vrm /tmp/tv
+          cp "$(find /tmp/tv -name 'VRM1_Constraint_Twist_Sample.vrm' | head -1)" assets/model.vrm
+          git clone -q --depth 1 https://github.com/tk256ailab/vrm-viewer /tmp/vv
+          find /tmp/vv -iname '*.vrma' -exec cp {} assets/anim/ \;
+          B=https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0
+          wget -q $B/kokoro-v1.0.onnx $B/voices-v1.0.bin
+          U=$(curl -s -H "Authorization: Bearer $GH" https://api.github.com/repos/DanielSWolf/rhubarb-lip-sync/releases/latest | python3 -c "import sys,json;print([a['browser_download_url'] for a in json.load(sys.stdin)['assets'] if 'Linux' in a['name']][0])")
+          wget -q -O rb.zip "$U" && unzip -q rb.zip && mv Rhubarb-Lip-Sync-* rb
+          U=$(curl -s -H "Authorization: Bearer $GH" https://api.github.com/repos/saturday06/VRM-Addon-for-Blender/releases/latest | python3 -c "import sys,json;print([a['browser_download_url'] for a in json.load(sys.stdin)['assets'] if a['name'].endswith('.zip') and 'Extension' not in a['name']][0])")
+          wget -q -O /tmp/vrm_addon.zip "$U"
+          cd /tmp
+          V=$(curl -s https://download.blender.org/release/Blender4.2/ | grep -o 'blender-4\.2\.[0-9]*-linux-x64\.tar\.xz' | sort -uV | tail -1)
+          wget -q https://download.blender.org/release/Blender4.2/$V && tar xf $V
+          echo "BL=$(ls -d /tmp/blender-4.2*-linux-x64)/blender" >> $GITHUB_ENV
+      - name: voice
+        run: |
+          python3 bl/voice.py
+          ./rb/rhubarb -f json -d dialog.txt -o mouth.json voice.wav -q
+      - name: render
+        run: |
+          mkdir -p /tmp/frames results
+          set +e
+          ADDON=/tmp/vrm_addon.zip LIBGL_ALWAYS_SOFTWARE=1 MESA_GL_VERSION_OVERRIDE=4.5 MESA_GLSL_VERSION_OVERRIDE=450 xvfb-run -a -s "-screen 0 1280x720x24" $BL -b -P bl/render.py > /tmp/b.log 2>&1
+          tail -40 /tmp/b.log | cut -c1-200 > results/blender.log
+          ls /tmp/frames | wc -l >> results/blender.log
+          [ -f /tmp/frames/f_0001.jpg ] || exit 1
+      - name: encode
+        run: |
+          F=$(python3 -c "import json;print(json.load(open('scene.json'))['fps'])")
+          ffmpeg -y -loglevel error -framerate $F -i /tmp/frames/f_%04d.jpg -i voice.wav -c:v libx264 -pix_fmt yuv420p -crf 20 -c:a aac -af apad -shortest results/blender_demo.mp4
+      - name: save
+        if: always()
+        run: |
+          git config user.name bot; git config user.email bot@x.com
+          git add results; git commit -qm "blender result"; git push -q || true
