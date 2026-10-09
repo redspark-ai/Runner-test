@@ -2,7 +2,9 @@ import bpy,json,math,os,time,sys
 S=json.load(open('scene.json')); fps=S['fps']
 bpy.ops.wm.read_factory_settings(use_empty=True)
 bpy.ops.preferences.addon_install(filepath=os.environ['ADDON'])
-bpy.ops.preferences.addon_enable(module='io_scene_vrm')
+for _m in ('VRM_Addon_for_Blender-release','io_scene_vrm'):
+    try: bpy.ops.preferences.addon_enable(module=_m); break
+    except Exception as _e: print('addon try',_m,str(_e)[:60],flush=True)
 sc=bpy.context.scene; sc.render.fps=fps
 print('STAGE import vrm',flush=True)
 bpy.ops.import_scene.vrm(filepath=os.path.abspath(S['model']))
