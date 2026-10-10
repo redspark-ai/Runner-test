@@ -1,0 +1,43 @@
+name: stills-video
+on: [workflow_dispatch]
+permissions:
+  contents: write
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - uses: actions/setup-node@v4
+        with: {node-version: 20}
+      - name: deps
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg unzip libnss3 libdbus-1-3 libatk1.0-0 libgbm-dev libasound2t64 libxrandr2 libxkbcommon-dev libxfixes3 libxcomposite1 libxdamage1 libatk-bridge2.0-0 libpango-1.0-0 libcairo2 libcups2 > /dev/null
+          pip install -q kokoro-onnx soundfile numpy
+      - name: assets
+        env: {GH: "${{ secrets.GITHUB_TOKEN }}"}
+        run: |
+          mkdir -p remotion/public results
+          B=https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0
+          wget -q $B/kokoro-v1.0.onnx $B/voices-v1.0.bin
+      - name: voice
+        run: |
+          python3 st/voice2.py
+      - name: render
+        run: |
+          cd remotion && npm i --silent && node gen-faces.mjs > /tmp/npm.log 2>&1
+          set +e
+          npx remotion render src/index.ts Stills ../results/stills_demo.mp4 --gl=swangle --log=error > /tmp/r.log 2>&1
+          rc=$?
+          tail -30 /tmp/r.log | cut -c1-220 > ../results/stills.log
+          tail -5 /tmp/npm.log | cut -c1-200 >> ../results/stills.log
+          exit $rc
+      - name: save
+        if: always()
+        run: |
+          git config user.name bot; git config user.email bot@x.com
+          git add results; git commit -qm "stills result" || true
+          for i in 1 2 3; do git pull --rebase -q && git push -q && break; sleep 3; done
