@@ -1,0 +1,4 @@
+{"skin":"6aa84f","segments":[
+ {"text":"Wait... you're telling me...","voice":"am_puck","speed":0.9,"pitch":0.93,"gap":0.25,"eyes":"plain","mouthClosed":"plain","mouthOpen":"cute","effect":"slowzoom","bg":"#14213d"},
+ {"text":"I can make videos... for FREE?!","voice":"am_puck","speed":1.12,"pitch":1.1,"gap":0.2,"eyes":"stars","mouthClosed":"lilSmile","mouthOpen":"shout","effect":"shake","bg":"#d00000"},
+ {"text":"Let's goooo!","voice":"am_puck","speed":1.05,"pitch":1.06,"gap":0.2,"eyes":"shades","mouthClosed":"wideSmile","mouthOpen":"smileTeeth","effect":"bounce","bg":"#2a9d8f"}]}
